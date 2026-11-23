@@ -1,0 +1,425 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deutsch Quiz</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+ --bg:#101010;
+ --card:#191919;
+ --border:#303030;
+ --white:#fff;
+ --gray:#999;
+ --soft:#252525;
+}
+
+body{
+ font-family:Arial,sans-serif;
+ background:var(--bg);
+ color:white;
+ min-height:100vh;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ padding:20px;
+ overflow-x:hidden;
+}
+
+.container{
+ width:100%;
+ max-width:620px;
+ animation:fadeUp .8s ease;
+}
+
+.header{text-align:center;margin-bottom:30px}
+
+.logo{
+ width:58px;height:58px;
+ border-radius:17px;
+ background:#fff;color:#111;
+ display:grid;place-items:center;
+ font-size:27px;font-weight:bold;
+ margin:0 auto 16px;
+ animation:float 3s ease-in-out infinite;
+}
+
+h1{font-size:27px;letter-spacing:-1px}
+.subtitle{color:var(--gray);font-size:13px;margin-top:8px}
+
+.card{
+ background:var(--card);
+ border:1px solid var(--border);
+ border-radius:20px;
+ padding:25px;
+ animation:fadeUp .7s ease;
+}
+
+.stats{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:10px;
+ margin-bottom:22px;
+}
+
+.stat{
+ background:#222;
+ padding:13px;
+ border-radius:12px;
+ color:var(--gray);
+ font-size:11px;
+ text-align:center;
+}
+
+.stat strong{
+ display:block;color:white;
+ font-size:19px;margin-top:7px;
+}
+
+.progress{
+ height:5px;background:#333;
+ border-radius:20px;
+ overflow:hidden;margin-bottom:27px;
+}
+
+.bar{
+ height:100%;width:0%;
+ background:white;
+ transition:width .5s ease;
+}
+
+.tag{
+ color:#aaa;font-size:11px;
+ letter-spacing:2px;font-weight:bold;
+}
+
+.question{
+ font-size:26px;
+ margin:13px 0 9px;
+ line-height:1.3;
+}
+
+.desc{font-size:13px;color:var(--gray);margin-bottom:25px}
+
+.answer{
+ min-height:65px;
+ background:#111;
+ border:1px dashed #444;
+ border-radius:12px;
+ padding:12px;
+ display:flex;
+ flex-wrap:wrap;
+ align-items:center;
+ gap:8px;
+ margin-bottom:22px;
+}
+
+.answer.empty:after{
+ content:"Pilih kata untuk menyusun kalimat...";
+ color:#666;font-size:12px;
+}
+
+.words{
+ display:flex;flex-wrap:wrap;gap:10px;
+}
+
+.word{
+ background:#303030;
+ color:white;
+ border:1px solid #484848;
+ padding:13px 18px;
+ border-radius:10px;
+ font-size:14px;
+ cursor:pointer;
+ transition:all .25s ease;
+ animation:popIn .4s backwards;
+}
+
+.word:hover{
+ background:#fff;color:#111;
+ transform:translateY(-4px);
+}
+
+.word:active{transform:scale(.92)}
+
+.word.used{
+ opacity:0;
+ transform:scale(.7);
+ pointer-events:none;
+}
+
+.answer .word{
+ background:#fff;color:#111;
+ border:0;
+ animation:popIn .25s ease;
+}
+
+.feedback{
+ margin-top:20px;
+ min-height:22px;
+ font-size:13px;
+ font-weight:bold;
+}
+
+.correct{color:#fff}
+.wrong{color:#aaa}
+
+.shake{animation:shake .35s ease}
+
+.footer{
+ text-align:center;
+ margin-top:22px;
+ color:#666;font-size:11px;
+ letter-spacing:1px;
+}
+
+.fade-change{animation:fadeUp .45s ease}
+
+.result{
+ text-align:center;
+ padding:30px 10px;
+ animation:zoomIn .6s ease;
+}
+
+.result h2{font-size:30px;margin:20px 0 10px}
+.result p{color:#aaa;line-height:1.7}
+
+.final-score{
+ font-size:48px;
+ font-weight:bold;
+ margin:25px 0;
+}
+
+.primary{
+ background:#fff;color:#111;
+ border:0;padding:14px 25px;
+ border-radius:10px;
+ font-weight:bold;cursor:pointer;
+ transition:.3s;
+}
+
+.primary:hover{background:#bbb;transform:scale(1.05)}
+
+@keyframes fadeUp{
+ from{opacity:0;transform:translateY(25px)}
+ to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes popIn{
+ from{opacity:0;transform:scale(.8) translateY(10px)}
+ to{opacity:1;transform:scale(1) translateY(0)}
+}
+
+@keyframes float{
+ 0%,100%{transform:translateY(0)}
+ 50%{transform:translateY(-7px)}
+}
+
+@keyframes shake{
+ 0%,100%{transform:translateX(0)}
+ 25%{transform:translateX(-6px)}
+ 75%{transform:translateX(6px)}
+}
+
+@keyframes zoomIn{
+ from{opacity:0;transform:scale(.9)}
+ to{opacity:1;transform:scale(1)}
+}
+
+@media(max-width:480px){
+ .card{padding:19px}
+ .question{font-size:23px}
+ .word{padding:12px 15px}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+ <header class="header">
+  <div class="logo">D</div>
+  <h1>Deutsch Quiz</h1>
+  <p class="subtitle">German Word Challenge</p>
+ </header>
+
+ <main class="card" id="game">
+
+  <div class="stats">
+   <div class="stat">SOAL<strong id="number">1/10</strong></div>
+   <div class="stat">SKOR<strong id="score">0</strong></div>
+   <div class="stat">WAKTU<strong id="timer">60s</strong></div>
+  </div>
+
+  <div class="progress"><div class="bar" id="bar"></div></div>
+
+  <span class="tag" id="level">LEVEL 1</span>
+  <h2 class="question" id="question"></h2>
+  <p class="desc">Susun kata berikut menjadi kalimat Bahasa Jerman yang benar.</p>
+
+  <div class="answer empty" id="answer"></div>
+  <div class="words" id="words"></div>
+
+  <div class="feedback" id="feedback"></div>
+
+ </main>
+
+ <div class="footer">DEUTSCH QUIZ • LEARN GERMAN</div>
+</div>
+
+<script>
+const questions=[
+ {q:"Saya makan apel",a:["Ich","esse","einen","Apfel"]},
+ {q:"Selamat pagi",a:["Guten","Morgen"]},
+ {q:"Nama saya Reza",a:["Ich","heiße","Reza"]},
+ {q:"Saya suka musik",a:["Ich","mag","Musik"]},
+ {q:"Dia minum air",a:["Er","trinkt","Wasser"]},
+ {q:"Saya pergi ke sekolah",a:["Ich","gehe","zur","Schule"]},
+ {q:"Kamu sangat baik",a:["Du","bist","sehr","nett"]},
+ {q:"Saya belajar bahasa Jerman",a:["Ich","lerne","Deutsch"]},
+ {q:"Hari ini cuacanya bagus",a:["Das","Wetter","ist","heute","schön"]},
+ {q:"Saya tinggal di Indonesia",a:["Ich","wohne","in","Indonesien"]}
+];
+
+let current=0;
+let score=0;
+let selected=[];
+let locked=false;
+let seconds=60;
+let timerInterval;
+
+const $=id=>document.getElementById(id);
+
+function shuffle(arr){
+ return [...arr].sort(()=>Math.random()-.5);
+}
+
+function render(){
+ const q=questions[current];
+ selected=[];
+ locked=false;
+
+ $("number").textContent=`${current+1}/${questions.length}`;
+ $("score").textContent=score;
+ $("level").textContent=`LEVEL ${Math.floor(current/3)+1}`;
+ $("question").textContent=q.q;
+ $("feedback").textContent="";
+ $("feedback").className="feedback";
+
+ $("bar").style.width=(current/questions.length*100)+"%";
+
+ $("answer").innerHTML="";
+ $("answer").classList.add("empty");
+
+ $("words").innerHTML="";
+
+ shuffle(q.a).forEach((word,index)=>{
+  const btn=document.createElement("button");
+  btn.className="word";
+  btn.textContent=word;
+  btn.style.animationDelay=(index*.06)+"s";
+
+  btn.onclick=()=>selectWord(word,btn);
+
+  $("words").appendChild(btn);
+ });
+}
+
+function selectWord(word,btn){
+ if(locked||btn.classList.contains("used"))return;
+
+ btn.classList.add("used");
+ selected.push(word);
+
+ $("answer").classList.remove("empty");
+
+ const item=document.createElement("button");
+ item.className="word";
+ item.textContent=word;
+
+ $("answer").appendChild(item);
+
+ if(selected.length===questions[current].a.length){
+  locked=true;
+  setTimeout(checkAnswer,350);
+ }
+}
+
+function checkAnswer(){
+ const correct=questions[current].a;
+ const isCorrect=selected.join(" ")===correct.join(" ");
+
+ if(isCorrect){
+  score+=10;
+  $("feedback").textContent="✓ Richtig! Sehr gut!";
+  $("feedback").className="feedback correct";
+ }else{
+  $("feedback").textContent="✕ Falsch! Jawaban: "+correct.join(" ");
+  $("feedback").className="feedback wrong";
+  $("card");
+ }
+
+ $("score").textContent=score;
+
+ setTimeout(nextQuestion,1100);
+}
+
+function nextQuestion(){
+ current++;
+
+ if(current>=questions.length){
+  finishGame();
+  return;
+ }
+
+ const card=$("game");
+ card.classList.remove("fade-change");
+ void card.offsetWidth;
+ card.classList.add("fade-change");
+
+ render();
+}
+
+function finishGame(){
+ clearInterval(timerInterval);
+
+ $("bar").style.width="100%";
+
+ $("game").innerHTML=`
+  <div class="result">
+   <div class="logo">D</div>
+   <h2>Quiz Selesai!</h2>
+   <p>Du hast es geschafft!</p>
+   <div class="final-score">${score}/100</div>
+   <p>
+    ${score>=80?"Ausgezeichnet! Kerja bagus!":
+      score>=50?"Sehr gut! Terus belajar!":
+      "Jangan menyerah! Coba lagi!"}
+   </p>
+   <br><br>
+   <button class="primary" onclick="location.reload()">Main Lagi</button>
+  </div>
+ `;
+}
+
+function startTimer(){
+ timerInterval=setInterval(()=>{
+  seconds--;
+  $("timer").textContent=seconds+"s";
+
+  if(seconds<=0){
+   clearInterval(timerInterval);
+   finishGame();
+  }
+ },1000);
+}
+
+render();
+startTimer();
+</script>
+</body>
+</html>
